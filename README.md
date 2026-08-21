@@ -1,71 +1,51 @@
-# Getting Started with Create React App
+# ID Scanner
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Capture an ID card with your phone camera and get back a clean PDF — entirely in the browser.
+No upload, no server, no third-party API. The image never leaves the device.
 
-## Available Scripts
+**[Live demo](https://idscanner.vercel.app)**
 
-In the project directory, you can run:
+## Why
 
-### `npm start`
+Scanning an ID usually means either a flatbed scanner or an app that uploads your document to
+someone else's server. For a document as sensitive as an ID card, neither is appealing. This does
+the whole pipeline client-side: capture, clean up, export.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## How it works
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Capture** — `react-webcam` opens the rear-facing camera (`facingMode: "environment"`) with a
+   3:2 framing guide matching standard ID card proportions.
+2. **Clean** — the frame is drawn to an offscreen `<canvas>` and processed pixel by pixel via
+   `getImageData`. Pixels above a brightness threshold on all three channels have their alpha set
+   to zero, dropping the white background so the card sits on transparency.
+3. **Export** — `jsPDF` places the cleaned PNG into an A4 document and triggers a download.
 
-### `npm test`
+State is a simple two-step machine: capture → review, with retake returning to step one.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Stack
 
-### `npm run build`
+React 19 · Tailwind CSS · react-webcam · jsPDF · Create React App
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Running locally
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm install
+npm start      # http://localhost:3000
+npm run build  # production build
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Camera access requires HTTPS (or localhost). On a desktop without a rear camera, the browser falls
+back to the default device.
 
-### `npm run eject`
+## Known limitations
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Background removal is a fixed brightness threshold, so it works well on white or light
+  backgrounds and poorly on dark or textured ones. An adaptive threshold or edge-detection pass
+  would generalize it.
+- No automatic edge detection or perspective correction — the framing guide relies on the user to
+  line the card up.
+- Single-side capture only; a front/back flow would need a second capture step and a two-page PDF.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## License
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# idscanner
+MIT
